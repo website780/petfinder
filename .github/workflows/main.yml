@@ -1,0 +1,29 @@
+name: Petfinder Scraper
+
+on:
+  schedule:
+    - cron: '0 */6 * * *'   # runs every 6 hours
+  workflow_dispatch:          # manual trigger too
+
+jobs:
+  scrape:
+    runs-on: ubuntu-latest
+    timeout-minutes: 350      # max 6hr per run
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install deps
+        run: pip install -r requirements.txt
+
+      - name: Write credentials.json
+        run: echo '${{ secrets.GOOGLE_CREDENTIALS }}' > credentials.json
+
+      - name: Run scraper
+        env:
+          GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
+        run: python main.py
